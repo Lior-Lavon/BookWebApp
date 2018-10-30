@@ -12,7 +12,15 @@ const url = 'mongodb://localhost:27017';
 const dbName = 'libraryApp';
 
 const router = (nav) => {
-  // /books routing
+  // protect bookRouter => allow only logged in users to continue
+  // check if the user is loged in, 
+  bookRouter.use((req, res, next) => {
+    if (req.user) { // pasport has added a user to the request , All good
+      next(); // continue
+    } else {
+      res.redirect('/'); // user was not found in the request
+    }
+  });
   bookRouter.route('/')
     .get((req, res) => {
       (async function mongo() {

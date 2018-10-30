@@ -4,6 +4,10 @@ const morgan = require('morgan');
 const debug = require('debug')('app'); // 'app' will be used for debug info printing
 const path = require('path');
 const bodyParser = require('body-parser');
+const passport = require('passport');
+const cookieParser = require('cookie-parser');
+const expressSession = require('express-session');
+
 
 const app = express();
 // read the port from the Nodemon env param.
@@ -18,13 +22,20 @@ const nav = [
 const bookRouterRDS = require('./src/routes/bookRoutes_RDS')(nav);
 const bookRouterMongo = require('./src/routes/bookRoutes_Mongo')(nav);
 const adminRouter = require('./src/routes/adminRoutes')();
-const authRouter = require('./src/routes/authRoutes')();
+const authRouter = require('./src/routes/authRoutes')(nav);
 
 app.use(morgan('tiny')); // [combined | tiny]
 
 // Middleware - get the body and append to the req.body flag
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+// include the use of cookieParser & expressSession
+app.use(cookieParser());
+app.use(expressSession({ secret: 'library' }));
+
+// passport authentication configuration
+require('./src/config/passport')(app);
 
 // middleware function
 app.use((req, res, next) => {

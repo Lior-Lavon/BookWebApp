@@ -28,7 +28,15 @@ const getBookById = (bookId) => {
 };
 
 const router = (nav) => {
-  // /books routing
+  // protect bookRouter => allow only logged in users to continue
+  // check if the user is loged in, 
+  bookRouter.use((req, res, next) => {
+    if (req.user) { // pasport has added a user to the request , All good
+      next(); // continue
+    } else {
+      res.redirect('/'); // user was not found in the request
+    }
+  });
   bookRouter.route('/')
     .get((req, res) => {
       (async function query() {
@@ -42,11 +50,6 @@ const router = (nav) => {
           }
         );
       }());
-    });
-  bookRouter.route('/test')
-    .get((req, res) => {
-      debug(req.body);
-      res.json(req.body);
     });
   bookRouter.route('/:id')
     // use middleware on 'all' traffic to interrupt the request before the 'get' request
